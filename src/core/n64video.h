@@ -101,6 +101,7 @@ struct n64video_config
         bool vsync;                 // enable vsync if true
         bool exclusive;             // run in exclusive mode when in fullscreen if true
         bool integer_scaling;       // one native pixel is displayed as a multiple of a screen pixel if true
+        bool bob_deinterlacer;      // deinterlaces n64video_read_screen() output with a bob deinterlacer
     } vi;
     struct {
         enum dp_compat_profile compat;  // multithreading compatibility mode
@@ -113,5 +114,6 @@ struct n64video_config
 void n64video_config_init(struct n64video_config* config);
 void n64video_init(struct n64video_config* config);
 void n64video_update_screen(struct n64video_frame_buffer* fb);
+void n64video_read_screen(struct n64video_frame_buffer* fb);
 void n64video_process_list(void);
 void n64video_close(void);

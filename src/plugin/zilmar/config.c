@@ -27,6 +27,8 @@
 #define KEY_VI_HIDE_OVERSCAN "hide_overscan"
 #define KEY_VI_EXCLUSIVE "exclusive"
 #define KEY_VI_VSYNC "vsync"
+#define KEY_VI_INTEGER_SCALING "integer_scaling"
+#define KEY_VI_BOB_DEINTERLACER "bob_deinterlacer"
 
 #define KEY_DP_COMPAT "compat"
 
@@ -50,6 +52,7 @@ static HWND dlg_check_vi_overscan;
 static HWND dlg_check_vi_exclusive;
 static HWND dlg_check_vi_vsync;
 static HWND dlg_check_vi_integer_scaling;
+static HWND dlg_check_vi_bob_deinterlacer;
 static HWND dlg_combo_dp_compat;
 static HWND dlg_spin_workers;
 static HWND dlg_edit_workers;
@@ -121,6 +124,7 @@ INT_PTR CALLBACK config_dialog_proc(HWND hwnd, UINT iMessage, WPARAM wParam, LPA
             CONFIG_DLG_INIT_CHECKBOX(IDC_CHECK_VI_EXCLUSIVE, dlg_check_vi_exclusive, config.vi.exclusive);
             CONFIG_DLG_INIT_CHECKBOX(IDC_CHECK_VI_VSYNC, dlg_check_vi_vsync, config.vi.vsync);
             CONFIG_DLG_INIT_CHECKBOX(IDC_CHECK_VI_INTEGER_SCALING, dlg_check_vi_integer_scaling, config.vi.integer_scaling);
+            CONFIG_DLG_INIT_CHECKBOX(IDC_CHECK_VI_BOB_DEINTERLACER, dlg_check_vi_bob_deinterlacer, config.vi.bob_deinterlacer);
 
             dlg_edit_workers = GetDlgItem(hwnd, IDC_EDIT_WORKERS);
             SetDlgItemInt(hwnd, IDC_EDIT_WORKERS, config.num_workers, FALSE);
@@ -162,6 +166,7 @@ INT_PTR CALLBACK config_dialog_proc(HWND hwnd, UINT iMessage, WPARAM wParam, LPA
                     config.vi.exclusive = SendMessage(dlg_check_vi_exclusive, BM_GETCHECK, 0, 0);
                     config.vi.vsync = SendMessage(dlg_check_vi_vsync, BM_GETCHECK, 0, 0);
                     config.vi.integer_scaling = SendMessage(dlg_check_vi_integer_scaling, BM_GETCHECK, 0, 0);
+                    config.vi.bob_deinterlacer = SendMessage(dlg_check_vi_bob_deinterlacer, BM_GETCHECK, 0, 0);
                     config.dp.compat = SendMessage(dlg_combo_dp_compat, CB_GETCURSEL, 0, 0);
                     config.parallel = SendMessage(dlg_check_multithread, BM_GETCHECK, 0, 0);
                     config.num_workers = GetDlgItemInt(hwnd, IDC_EDIT_WORKERS, FALSE, FALSE);
@@ -206,6 +211,10 @@ static void config_handle(const char* key, const char* value, const char* sectio
             config.vi.exclusive = strtol(value, NULL, 0) != 0;
         } else if (!_strcmpi(key, KEY_VI_VSYNC)) {
             config.vi.vsync = strtol(value, NULL, 0) != 0;
+        } else if (!_strcmpi(key, KEY_VI_INTEGER_SCALING)) {
+            config.vi.integer_scaling = strtol(value, NULL, 0) != 0;
+        } else if (!_strcmpi(key, KEY_VI_BOB_DEINTERLACER)) {
+            config.vi.bob_deinterlacer = strtol(value, NULL, 0) != 0;
         }
     } else if (!_strcmpi(section, SECTION_DISPLAY_PROCESSOR)) {
         if (!_strcmpi(key, KEY_DP_COMPAT)) {
@@ -315,6 +324,8 @@ bool config_save(void)
     config_write_int32(fp, KEY_VI_HIDE_OVERSCAN, config.vi.hide_overscan);
     config_write_int32(fp, KEY_VI_EXCLUSIVE, config.vi.exclusive);
     config_write_int32(fp, KEY_VI_VSYNC, config.vi.vsync);
+    config_write_int32(fp, KEY_VI_INTEGER_SCALING, config.vi.integer_scaling);
+    config_write_int32(fp, KEY_VI_BOB_DEINTERLACER, config.vi.bob_deinterlacer);
     fputs("\n", fp);
 
     config_write_section(fp, SECTION_DISPLAY_PROCESSOR);
