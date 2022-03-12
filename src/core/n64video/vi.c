@@ -767,7 +767,7 @@ void n64video_read_screen(struct n64video_frame_buffer* fb)
     }
     else // interlaced; deinterlace
     {
-        if (1) // todo: config option for bob deinterlacer
+        if (config.vi.bob_deinterlacer)
         {
             struct n64video_pixel* src = prescale + lowerfield * fb->width;
             struct n64video_pixel* dst = fb->pixels;
