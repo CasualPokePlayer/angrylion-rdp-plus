@@ -746,6 +746,55 @@ void n64video_update_screen(struct n64video_frame_buffer* fb)
     }
 }
 
+void n64video_read_screen(struct n64video_frame_buffer* fb)
+{
+    fb->width = PRESCALE_WIDTH;
+    fb->height = (ispal ? V_RES_PAL : V_RES_NTSC) >> !ctrl.serrate;
+    fb->pixels = (struct n64video_pixel*)malloc(PRESCALE_WIDTH * (ispal ? V_RES_PAL : V_RES_NTSC) * sizeof(struct n64video_pixel));
+    if (fb->height < V_RES_NTSC) // progressive; double the height
+    {
+        struct n64video_pixel* src = prescale;
+        struct n64video_pixel* dst = fb->pixels;
+        uint32_t double_width = fb->width * 2;
+        for (uint32_t i = 0; i < fb->height; i++)
+        {
+            memcpy(dst, src, fb->width * sizeof(struct n64video_pixel));
+            memcpy(dst + fb->width, src, fb->width * sizeof(struct n64video_pixel));
+            src += fb->width;
+            dst += double_width;
+        }
+        fb->height *= 2;
+    }
+    else // interlaced; deinterlace
+    {
+        if (1) // todo: config option for bob deinterlacer
+        {
+            struct n64video_pixel* src = prescale + lowerfield * fb->width;
+            struct n64video_pixel* dst = fb->pixels;
+            uint32_t double_width = fb->width * 2;
+            uint32_t half_height = fb->height / 2;
+            for (uint32_t i = 0; i < half_height; i++)
+            {
+                memcpy(dst, src, fb->width * sizeof(struct n64video_pixel));
+                memcpy(dst + fb->width, src, fb->width * sizeof(struct n64video_pixel));
+                src += double_width;
+                dst += double_width;
+            }
+        }
+        else // result is already weaved
+        {
+            struct n64video_pixel* src = prescale;
+            struct n64video_pixel* dst = fb->pixels;
+            for (uint32_t i = 0; i < fb->height; i++)
+            {
+                memcpy(dst, src, fb->width * sizeof(struct n64video_pixel));
+                src += fb->width;
+                dst += fb->width;
+            }
+        }
+    }
+}
+
 static void vi_close(void)
 {
 }

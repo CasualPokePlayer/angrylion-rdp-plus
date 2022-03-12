@@ -205,11 +205,35 @@ EXPORT void CALL DllConfig(HWND hParent)
     config_dialog(hParent);
 }
 
+struct bgr24_pixel
+{
+    uint8_t b;
+    uint8_t g;
+    uint8_t r;
+};
+
 EXPORT void CALL ReadScreen(void **dest, long *width, long *height)
 {
-    UNUSED(dest);
-    UNUSED(width);
-    UNUSED(height);
+    struct n64video_frame_buffer fb;
+    n64video_read_screen(&fb);
+    *width = fb.width;
+    *height = fb.height;
+    *dest = malloc(fb.width * fb.height * sizeof(struct bgr24_pixel));
+    struct bgr24_pixel* out_pixels = (struct bgr24_pixel*)(*dest) + fb.width * (fb.height - 1);
+    for (uint32_t i = 0; i < fb.height; i++)
+    {
+        for (uint32_t j = 0; j < fb.width; j++)
+        {
+            struct n64video_pixel pixel = fb.pixels[i * fb.width + j];
+            out_pixels[(0 - i) * fb.width + j] = (struct bgr24_pixel){ pixel.b, pixel.g, pixel.r, };
+        }
+    }
+    free(fb.pixels);
+}
+
+EXPORT void CALL DllCrtFree(void *p)
+{
+    free(p);
 }
 
 EXPORT void CALL DrawScreen(void)

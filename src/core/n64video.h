@@ -113,5 +113,6 @@ struct n64video_config
 void n64video_config_init(struct n64video_config* config);
 void n64video_init(struct n64video_config* config);
 void n64video_update_screen(struct n64video_frame_buffer* fb);
+void n64video_read_screen(struct n64video_frame_buffer* fb);
 void n64video_process_list(void);
 void n64video_close(void);
